@@ -49,13 +49,14 @@ avg = None
 lastUploaded = datetime.datetime.now()
 motionCounter = 0
 
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
 while True:
     ret, frame = vs.read()
 
     fgmask = fgbg.apply(frame)
-    # fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
 
     cv2.imshow('frame', fgmask)
     key = cv2.waitKey(1) & 0xFF
