@@ -1,5 +1,13 @@
-import cv2
+import argparse
+import datetime
+import json
+import time
+import warnings
+
 import numpy as np
+
+import cv2
+import imutils
 
 cap = cv2.VideoCapture(0)
 
@@ -8,18 +16,11 @@ fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
 while True:
     ret, frame = cap.read()
+
     fgmask = fgbg.apply(frame)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel, iterations=5)
 
     cv2.imshow('frame', fgmask)
-
-    n_white_pix = np.sum(fgmask == 255)
-
-    n_total_pix = fgmask.size
-
-    if n_white_pix / n_total_pix > 0.1 * n_total_pix:
-        print("Movement detected")
-
     key = cv2.waitKey(1) & 0xFF
     # if the `q` key is pressed, break from the lop
     if key == ord("q"):
