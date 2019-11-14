@@ -2,6 +2,7 @@
 from json_minify import json_minify
 import json
 
+
 class Conf:
     def __init__(self, confPath):
         # load and store the configuration and update the object's

@@ -1,6 +1,6 @@
-# import the necessary packages
 import uuid
 import os
+
 
 class TempImage:
     def __init__(self, basePath="./", ext=".jpg"):

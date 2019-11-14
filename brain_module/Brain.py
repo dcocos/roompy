@@ -1,33 +1,53 @@
 import logging
 from datetime import datetime
 
+from brain_module.CloseMeetingActionRule import CloseMeetingActionRule
+from brain_module.EndingMeetingActionRule import EndingMeetingActionRule
 from calendar_module.Calendar import Calendar
 from calendar_module.CalendarClient import CalendarClient
+from motion_module.Detector import Detector
 from speak_module.Speak import Speak
+from utils.RepeatedTimer import RepeatedTimer
 
 
 class Brain:
     def __init__(self):
-        self.last_movement = datetime.fromisoformat('1000-01-01T00:00:00+02:00')
+        # initialize the brain parts
         self.calendar = Calendar(CalendarClient('adrian.tosca@gmail.com'))
         self.speak = Speak()
-        self.events_notified_for_ending = {}
+        self.detector = Detector(True)
+        self.detector.motionDetected += self.__update_last_movement
+        self.last_movement_datetime = datetime.fromisoformat('1000-01-01T00:00:00+02:00')
 
-    def run_cycle(self):
-        logging.info('running cycle')
-        time_now = self.calendar.get_time_now()
-        open_events = self.calendar.get_open_events(time_now)
-        for event in open_events:
-            if self.calendar.is_event_ending(time_now, event, 30):
-                if event.id not in self.events_notified_for_ending:
-                    logging.info(f'event {event.summary} is ending at {event.end}')
-                    self.events_notified_for_ending[event.id] = True
-                    time_in_minutes_until_end = self.calendar.time_in_minutes_until_end(time_now, event)
-                    self.speak.speak(f'This meeting reservation is ending in {time_in_minutes_until_end}. '
-                                     f'Get the f out of here!', 'en')
-                else:
-                    logging.info(f'event {event.summary} is ending at {event.end} but message already played.')
+        # the action rules for the thinking tick
+        self.action_rules = [
+            EndingMeetingActionRule(self, 5),
+            CloseMeetingActionRule(self, 5)
+        ]
 
-    def update_last_movement(self):
-        print("last_movement updated")
-        self.last_movement = datetime.now()
+        # current values used in rules
+        self.current_time = self.calendar.get_time_now()
+        self.current_open_events = []
+
+        # the timer for the thinking tick
+        self.thinking_tick_timer = RepeatedTimer(5, self.__run_thinking_tick)
+
+    def start_thinking(self):
+        self.thinking_tick_timer.start()
+        try:
+            logging.info('Roompy is very vigilant')
+            self.detector.detect()
+        finally:
+            self.thinking_tick_timer.stop()
+            logging.info('Roompy has fallen asleep')
+
+    def __run_thinking_tick(self):
+        logging.info('running thinking tick')
+        self.current_time = self.calendar.get_time_now()
+        self.current_open_events = self.calendar.get_open_events(self.current_time)
+        for action_rule in self.action_rules:
+            action_rule.check_do()
+
+    def __update_last_movement(self):
+        self.last_movement_datetime = datetime.now()
+        logging.info(f'last movement updated to {self.last_movement_datetime}')
