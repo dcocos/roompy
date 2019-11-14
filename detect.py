@@ -45,10 +45,10 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     # the timestamp and occupied/unoccupied text
     frame = f.array
     timestamp = datetime.datetime.now()
-    text = "Unoccupied"
+    text = "Available"
 
     # resize the frame, convert it to grayscale, and blur it
-    frame = imutils.resize(frame, width=700, height=700)
+    frame = imutils.resize(frame, width=800)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
@@ -84,7 +84,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
         # and update the text
         (x, y, w, h) = cv2.boundingRect(c)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        text = "Occupied"
+        text = "Unavailable"
 
     # draw the text and timestamp on the frame
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
@@ -93,8 +93,8 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
                 0.35, (0, 0, 255), 1)
 
-    # check to see if the room is occupied
-    if text == "Occupied":
+    # check to see if the room is unavailable
+    if text == "Unavailable":
         # check to see if enough time has passed between uploads
         if (timestamp - lastUploaded).seconds >= conf["min_upload_seconds"]:
             # increment the motion counter
