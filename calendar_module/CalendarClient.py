@@ -2,6 +2,8 @@ import logging
 from googleapiclient import sample_tools
 from oauth2client import client
 from datetime import datetime
+
+from calendar_module.CalendarModuleConfig import CalendarModuleConfig
 from calendar_module.CalendarEventInfo import CalendarEventInfo
 
 
@@ -52,3 +54,21 @@ class CalendarClient:
 
         logging.info(f'[CalendarClient] found {len(result_list)} events in list.')
         return result_list
+
+    def patch_end_time(self, event: CalendarEventInfo, new_end_time: datetime):
+        end_time_iso = new_end_time.isoformat()
+        logging.info(f'[CalendarClient] patching end time for {event.summary} event to {end_time_iso}.')
+        updated_description_with_message = \
+            CalendarModuleConfig.event_close_message_template.format(end_time_iso) + \
+            event.description
+
+        body = {
+            'description': updated_description_with_message,
+            'end': {'dateTime': end_time_iso}
+        }
+        return self.service.events().patch(
+            calendarId=self.calendar_id,
+            eventId=event.id,
+            body=body,
+            sendNotifications=True) \
+            .execute()
