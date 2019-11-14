@@ -1,6 +1,8 @@
+import logging
 from googleapiclient import sample_tools
 from oauth2client import client
 from datetime import datetime
+from calendar_module.CalendarEventInfo import CalendarEventInfo
 
 
 class CalendarClient:
@@ -15,11 +17,11 @@ class CalendarClient:
     def list(self, start_from: datetime, end_to: datetime):
         start_from_iso = datetime.isoformat(start_from)
         end_to_iso = datetime.isoformat(end_to)
+        logging.info(f'[CalendarClient] list for {self.calendar_id} from {start_from_iso} to {end_to_iso}.')
         result_list = []
         try:
             page_token = None
             while True:
-                print(start_from_iso + ' ' + end_to_iso)
                 events_result = self.service \
                     .events() \
                     .list(
@@ -27,16 +29,26 @@ class CalendarClient:
                         timeMin=start_from_iso,
                         timeMax=end_to_iso,
                         singleEvents=True,
+                        orderBy='startTime',
                         pageToken=page_token) \
                     .execute()
                 for event in events_result['items']:
-                    print(event)
+                    calendar_event_info = CalendarEventInfo(
+                        event['id'],
+                        event.get('summary', ''),
+                        event.get('description', ''),
+                        datetime.fromisoformat(event['start']['dateTime']),
+                        datetime.fromisoformat(event['end']['dateTime']))
+                    result_list.append(calendar_event_info)
                 page_token = events_result.get('nextPageToken')
-                if not page_token:
+                if page_token:
+                    logging.info(f'[CalendarClient] list next page {page_token}.')
+                else:
                     break
 
         except client.AccessTokenRefreshError:
-            print('The credentials have been revoked or expired, please re-run'
-                  'the application to re-authorize.')
+            logging.error('The credentials have been revoked or expired, please re-run'
+                          'the application to re-authorize.')
 
+        logging.info(f'[CalendarClient] found {len(result_list)} events in list.')
         return result_list

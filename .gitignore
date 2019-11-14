@@ -105,6 +105,8 @@ venv.bak/
 
 .idea
 
+.DS_Store
+
 calendar_module/client_secrets.json
 calendar_module/test/calendar.dat
 calendar_module/calendar.dat
