@@ -29,6 +29,13 @@ class Calendar:
     def is_event_ending(time_now: datetime, event_info: CalendarEventInfo, threshold_minutes: int):
         return event_info.end - timedelta(minutes=threshold_minutes) <= time_now <= event_info.end
 
+    @staticmethod
+    def time_in_minutes_until_end(time_now: datetime, event_info: CalendarEventInfo):
+        if time_now < event_info.end:
+            return (event_info.end - time_now).seconds / 60
+        else:
+            return -1
+
     def get_open_events(self, time_now: datetime):
         around_list = self.list_around(time_now, -4, 1)
         return [event for event in around_list if self.is_event_open(time_now, event)]

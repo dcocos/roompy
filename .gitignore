@@ -109,3 +109,5 @@ venv.bak/
 
 calendar_module/client_secrets.json
 **/calendar.dat
+
+speak_module/SoundRecordings/*
