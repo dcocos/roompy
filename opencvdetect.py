@@ -15,7 +15,11 @@ while True:
 
     n_white_pix = np.sum(fgmask == 255)
 
+    print(n_white_pix)
+
     n_total_pix = fgmask.size
+
+    print(n_total_pix)
 
     if n_white_pix / n_total_pix > 0.1 * n_total_pix:
         print("Movement detected")
