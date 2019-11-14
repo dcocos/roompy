@@ -7,7 +7,7 @@ import warnings
 import cv2
 import imutils
 
-cap = cv2.VideoCapture()
+cap = cv2.VideoCapture(0)
 
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
