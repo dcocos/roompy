@@ -10,7 +10,7 @@ import imutils
 cap = cv2.VideoCapture()
 
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-fgbg = cv2.createBackgroundSubtractorGMG()
+fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
 while (1):
     ret, frame = cap.read()
