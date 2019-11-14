@@ -28,8 +28,8 @@ while True:
     # using a greyscale picture, also for faster detection
     gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
-    fgmask = fgbg.apply(frame)
-    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+    # fgmask = fgbg.apply(frame)
+    # fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
 
     # detect people in the image
     # returns the bounding boxes for the detected objects
