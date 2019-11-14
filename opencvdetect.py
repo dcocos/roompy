@@ -17,7 +17,8 @@ while True:
     n_total_pix = fgmask.size
     white_percent = n_white_pix / n_total_pix
     threshold = 0.01 * n_total_pix
-    print('n_white_pix= ' + n_white_pix + ', n_total_pix= ' + n_total_pix + ', white_percent=' + white_percent + ', threshold=' + threshold)
+
+    print("n_white_pix: %s , n_total_pix: %s, white_percent: %s, threshold: %s" % (n_white_pix, n_total_pix, white_percent, threshold))
     if white_percent > threshold:
         print("Movement detected")
 
