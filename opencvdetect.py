@@ -19,10 +19,9 @@ while True:
 
     print(n_total_pix)
 
-    print("Pixels move")
     print(n_white_pix / n_total_pix)
 
-    if n_white_pix / n_total_pix > 0.1 * n_total_pix:
+    if n_white_pix / n_total_pix > 0.01 * n_total_pix:
         print("Movement detected")
 
     key = cv2.waitKey(1) & 0xFF
