@@ -14,14 +14,11 @@ while True:
     cv2.imshow('frame', fgmask)
 
     n_white_pix = np.sum(fgmask == 255)
-
     n_total_pix = fgmask.size
-
-    print(n_total_pix)
-
-    print(n_white_pix / n_total_pix)
-
-    if n_white_pix / n_total_pix > 0.01 * n_total_pix:
+    white_percent = n_white_pix / n_total_pix
+    threshold = 0.01 * n_total_pix
+    print('n_total_pix=' + n_total_pix + ', white_percent=' + white_percent + ', threshold=' + threshold)
+    if white_percent > threshold:
         print("Movement detected")
 
     key = cv2.waitKey(1) & 0xFF
