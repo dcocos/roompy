@@ -48,7 +48,7 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
     text = "Unoccupied"
 
     # resize the frame, convert it to grayscale, and blur it
-    frame = imutils.resize(frame, width=500)
+    frame = imutils.resize(frame, width=700)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
@@ -114,8 +114,8 @@ for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True
 
     # check to see if the frames should be displayed to screen
     if conf["show_video"]:
-        # display the security feed
-        cv2.imshow("Security Feed", frame)
+        # display the roompy window
+        cv2.imshow("Roompy", frame)
         key = cv2.waitKey(1) & 0xFF
 
         # if the `q` key is pressed, break from the lop
