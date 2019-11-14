@@ -40,7 +40,7 @@ lastUploaded = datetime.datetime.now()
 motionCounter = 0
 
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-fgbg = cv2.createBackgroundSubtractorGMG()
+fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
 # capture frames from the camera
 for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
