@@ -9,6 +9,7 @@ import warnings
 
 import cv2
 import imutils
+from imutils.video import VideoStream
 from picamera import PiCamera
 # import the necessary packages
 from picamera.array import PiRGBArray
@@ -25,11 +26,20 @@ warnings.filterwarnings("ignore")
 conf = json.load(open(args["conf"]))
 client = None
 
+# Are we using the Pi Camera?
+usingPiCamera = True
+# Set initial frame size.
+frameSize = (320, 240)
+
 # initialize the camera and grab a reference to the raw camera capture
 camera = PiCamera()
 camera.resolution = tuple(conf["resolution"])
 camera.framerate = conf["fps"]
 rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
+
+# Initialize mutithreading the video stream.
+vs = VideoStream(src=0, usePiCamera=usingPiCamera, resolution=frameSize,
+                 framerate=32).start()
 
 # allow the camera to warmup, then initialize the average frame, last
 # uploaded timestamp, and frame motion counter
@@ -39,14 +49,11 @@ avg = None
 lastUploaded = datetime.datetime.now()
 motionCounter = 0
 
-
-cap = cv2.VideoCapture();
-
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
-while (1):
-    ret, frame = cap.read()
+while True:
+    ret, frame = vs.read()
 
     fgmask = fgbg.apply(frame)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
@@ -57,8 +64,8 @@ while (1):
     if key == ord("q"):
         break
 
-cap.release()
 cv2.destroyAllWindows()
+vs.stop()
 
 # # capture frames from the camera
 # for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
