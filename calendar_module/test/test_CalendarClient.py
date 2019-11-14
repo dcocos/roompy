@@ -2,13 +2,14 @@ import logging
 import unittest
 from datetime import datetime, timedelta
 from calendar_module.CalendarClient import CalendarClient
+from calendar_module.test.TestConfig import TestConfig
 
 
 class TestCalendarClient(unittest.TestCase):
 
     def setUp(self):
         self.test_date = datetime.fromisoformat('2019-11-14T00:00:00+02:00')
-        self.calendar_client = CalendarClient('adrian.tosca@gmail.com')
+        self.calendar_client = CalendarClient(TestConfig.calendar_id)
 
     def test_list(self):
         result_list = self.list_on(self.test_date)

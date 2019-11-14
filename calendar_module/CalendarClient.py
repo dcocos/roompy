@@ -3,7 +3,7 @@ from googleapiclient import sample_tools
 from oauth2client import client
 from datetime import datetime
 
-from calendar_module.CalendarModuleConfig import CalendarModuleConfig
+from calendar_module.CalendarConfig import CalendarConfig
 from calendar_module.CalendarEventInfo import CalendarEventInfo
 
 
@@ -59,7 +59,7 @@ class CalendarClient:
         end_time_iso = new_end_time.isoformat()
         logging.info(f'[CalendarClient] patching end time for {event.summary} event to {end_time_iso}.')
         updated_description_with_message = \
-            CalendarModuleConfig.event_close_message_template.format(end_time_iso) + \
+            CalendarConfig.event_close_message_template.format(end_time_iso) + \
             event.description
 
         body = {
