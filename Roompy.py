@@ -1,9 +1,8 @@
 import logging
-from time import sleep
 
-from utils.RepeatedTimer import RepeatedTimer
 from brain_module.Brain import Brain
-
+from opencvdetect import Detector
+from utils.RepeatedTimer import RepeatedTimer
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -13,7 +12,9 @@ def main():
     rt = RepeatedTimer(5, brain.run_cycle)
     try:
         logging.info('Roompy is very vigilant')
-        sleep(240)
+        detector = Detector()
+        detector.motionDetected += brain.update_last_movement
+        detector.detect()
     finally:
         logging.info('Roompy has fallen asleep')
         rt.stop()

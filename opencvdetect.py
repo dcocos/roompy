@@ -12,7 +12,7 @@ class Detector:
         self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         self.fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
 
-    def fire(self):
+    def detect(self):
         while True:
             ret, frame = self.cap.read()
             fgmask = self.fgbg.apply(frame)

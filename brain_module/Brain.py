@@ -16,3 +16,7 @@ class Brain:
         for e in open_events:
             if self.calendar.is_event_ending(self.calendar.get_time_now(), e, 30):
                 logging.info(f'event {e.summary} is ending at {e.end}')
+
+    def update_last_movement(self):
+        print("last_movement updated")
+        self.last_movement = datetime.now()
