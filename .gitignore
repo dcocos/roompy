@@ -103,5 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# IntelliJ IDEA
-.idea/
+.idea
+
+calendar_module/client_secrets.json
+calendar_module/test/calendar.dat
+calendar_module/calendar.dat
