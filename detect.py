@@ -1,17 +1,17 @@
 # USAGE
 # python pi_surveillance.py --conf conf.json
 
-# import the necessary packages
-from image.tempimage import TempImage
-from picamera.array import PiRGBArray
-from picamera import PiCamera
 import argparse
-import warnings
 import datetime
-import imutils
 import json
 import time
+import warnings
+
 import cv2
+import imutils
+from picamera import PiCamera
+# import the necessary packages
+from picamera.array import PiRGBArray
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
