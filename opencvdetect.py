@@ -15,7 +15,7 @@ while True:
 
     n_white_pix = np.sum(fgmask == 255)
     n_total_pix = fgmask.size
-    white_percent = n_white_pix / n_total_pix
+    white_percent = n_white_pix / float(n_total_pix)
     threshold = 0.01 * n_total_pix
 
     print("n_white_pix: %s , n_total_pix: %s, white_percent: %s, threshold: %s" % (n_white_pix, n_total_pix, white_percent, threshold))
