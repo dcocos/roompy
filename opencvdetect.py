@@ -1,13 +1,5 @@
-import argparse
-import datetime
-import json
-import time
-import warnings
-
-import numpy as np
-
 import cv2
-import imutils
+import numpy as np
 
 hog = cv2.HOGDescriptor()
 hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
@@ -16,9 +8,6 @@ cv2.startWindowThread()
 
 cap = cv2.VideoCapture(0)
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
-
 # the output will be written to output.avi
 out = cv2.VideoWriter(
     'output.avi',
@@ -26,17 +15,21 @@ out = cv2.VideoWriter(
     15.,
     (640, 480))
 
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
+
 while True:
+    # Capture frame by frame
     ret, frame = cap.read()
 
+    # resizing for faster detection
     frame = cv2.resize(frame, (640, 480))
 
+    # using a greyscale picture, also for faster detection
     gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
     fgmask = fgbg.apply(frame)
     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
-
-    cv2.imshow('frame', fgmask)
 
     # detect people in the image
     # returns the bounding boxes for the detected objects
