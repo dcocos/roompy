@@ -16,7 +16,7 @@ while (1):
     ret, frame = cap.read()
 
     fgmask = fgbg.apply(frame)
-    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel, iterations=5)
 
     cv2.imshow('frame', fgmask)
     key = cv2.waitKey(1) & 0xFF
