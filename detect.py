@@ -1,157 +1,126 @@
 # USAGE
-# python detect.py --conf config/config.json
+# python pi_surveillance.py --conf conf.json
 
 # import the necessary packages
-from __future__ import print_function
-from utils import Conf
-from imutils.video import VideoStream
-from imutils.io import TempFile
-from datetime import datetime
-from datetime import date
-import numpy as np
+from image.tempimage import TempImage
+from picamera.array import PiRGBArray
+from picamera import PiCamera
 import argparse
+import warnings
+import datetime
 import imutils
-import signal
+import json
 import time
 import cv2
-import sys
-
-# function to handle keyboard interrupt
-def signal_handler(sig, frame):
-    print("[INFO] You pressed `ctrl + c`! Closing mail detector" \
-          " application...")
-    sys.exit(0)
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-c", "--conf", required=True,
-                help="Path to the input configuration file")
+                help="path to the JSON configuration file")
 args = vars(ap.parse_args())
 
-# load the configuration file and initialize the Twilio notifier
-conf = Conf(args["conf"])
+# filter warnings, load the configuration and initialize the Dropbox
+# client
+warnings.filterwarnings("ignore")
+conf = json.load(open(args["conf"]))
+client = None
 
-# initialize the flags for fridge open and notification sent
-fridgeOpen = False
-notifSent = False
+# initialize the camera and grab a reference to the raw camera capture
+camera = PiCamera()
+camera.resolution = tuple(conf["resolution"])
+camera.framerate = conf["fps"]
+rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
 
-# initialize the video stream and allow the camera sensor to warmup
-print("[INFO] warming up camera...")
-# vs = VideoStream(src=0).start()
-vs = VideoStream(usePiCamera=True).start()
-time.sleep(2.0)
+# allow the camera to warmup, then initialize the average frame, last
+# uploaded timestamp, and frame motion counter
+print("[INFO] warming up...")
+time.sleep(conf["camera_warmup_time"])
+avg = None
+lastUploaded = datetime.datetime.now()
+motionCounter = 0
 
-# signal trap to handle keyboard interrupt
-signal.signal(signal.SIGINT, signal_handler)
-print("[INFO] Press `ctrl + c` to exit, or 'q' to quit if you have" \
-      " the display option on...")
+# capture frames from the camera
+for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+    # grab the raw NumPy array representing the image and initialize
+    # the timestamp and occupied/unoccupied text
+    frame = f.array
+    timestamp = datetime.datetime.now()
+    text = "Unoccupied"
 
-# initialize the video writer and the frame dimensions (we'll set
-# them as soon as we read the first frame from the video)
-writer = None
-W = None
-H = None
-
-# loop over the frames of the stream
-while True:
-    # grab both the next frame from the stream and the previous
-    # refrigerator status
-    frame = vs.read()
-    fridgePrevOpen = fridgeOpen
-
-    # quit if there was a problem grabbing a frame
-    if frame is None:
-        break
-
-    # resize the frame and convert the frame to grayscale
-    frame = imutils.resize(frame, width=200)
+    # resize the frame, convert it to grayscale, and blur it
+    frame = imutils.resize(frame, width=500)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
-    # if the frame dimensions are empty, set them
-    if W is None or H is None:
-        (H, W) = frame.shape[:2]
+    # if the average frame is None, initialize it
+    if avg is None:
+        print("[INFO] starting background model...")
+        avg = gray.copy().astype("float")
+        rawCapture.truncate(0)
+        continue
 
-    # calculate the average of all pixels where a higher mean
-    # indicates that there is more light coming into the refrigerator
-    mean = np.mean(gray)
+    # accumulate the weighted average between the current frame and
+    # previous frames, then compute the difference between the current
+    # frame and running average
+    cv2.accumulateWeighted(gray, avg, 0.5)
+    frameDelta = cv2.absdiff(gray, cv2.convertScaleAbs(avg))
 
-    # determine if the refrigerator is currently open
-    fridgeOpen = mean > conf["thresh"]
+    # threshold the delta image, dilate the thresholded image to fill
+    # in holes, then find contours on thresholded image
+    thresh = cv2.threshold(frameDelta, conf["delta_thresh"], 255,
+                           cv2.THRESH_BINARY)[1]
+    thresh = cv2.dilate(thresh, None, iterations=2)
+    cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+                            cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
 
-    # if the fridge is open and previously it was closed, it means
-    # the fridge has been just opened
-    if fridgeOpen and not fridgePrevOpen:
-        # record the start time
-        startTime = datetime.now()
+    # loop over the contours
+    for c in cnts:
+        # if the contour is too small, ignore it
+        if cv2.contourArea(c) < conf["min_area"]:
+            continue
 
-        # create a temporary video file and initialize the video
-        # writer object
-        tempVideo = TempFile(ext=".mp4")
-        writer = cv2.VideoWriter(tempVideo.path, 0x21, 30, (W, H),
-                                 True)
+        # compute the bounding box for the contour, draw it on the frame,
+        # and update the text
+        (x, y, w, h) = cv2.boundingRect(c)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        text = "Occupied"
 
-    # if the fridge is open then there are 2 possibilities,
-    # 1) it's left open for more than the *threshold* seconds.
-    # 2) it's closed in less than or equal to the *threshold* seconds.
-    elif fridgePrevOpen:
-        # calculate the time different between the current time and
-        # start time
-        timeDiff = (datetime.now() - startTime).seconds
+    # draw the text and timestamp on the frame
+    ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
+    cv2.putText(frame, "Room Status: {}".format(text), (10, 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX,
+                0.35, (0, 0, 255), 1)
 
-        # if the fridge is open and the time difference is greater
-        # than threshold, then send a notification
-        if fridgeOpen and timeDiff > conf["open_threshold_seconds"]:
-            # if a notification has not been sent yet, then send a
-            # notification
-            if not notifSent:
-                # build the message and send a notification
-                msg = "Intruder has left your fridge open!!!"
+    # check to see if the room is occupied
+    if text == "Occupied":
+        # check to see if enough time has passed between uploads
+        if (timestamp - lastUploaded).seconds >= conf["min_upload_seconds"]:
+            # increment the motion counter
+            motionCounter += 1
 
-                # release the video writer pointer and reset the
-                # writer object
-                writer.release()
-                writer = None
+            # check to see if the number of frames with consistent motion is
+            # high enough
+            if motionCounter >= conf["min_motion_frames"]:
+                # update the last uploaded timestamp and reset the motion
+                # counter
+                lastUploaded = timestamp
+                motionCounter = 0
 
-                # send the message and the video to the owner and
-                # set the notification sent flag
-                notifSent = True
+    # otherwise, the room is not occupied
+    else:
+        motionCounter = 0
 
-        # check to see if the fridge is closed
-        elif not fridgeOpen:
-            # if a notification has already been sent, then just set
-            # the notifSent to false for the next iteration
-            if notifSent:
-                notifSent = False
+    # check to see if the frames should be displayed to screen
+    if conf["show_video"]:
+        # display the security feed
+        cv2.imshow("Security Feed", frame)
+        key = cv2.waitKey(1) & 0xFF
 
-            # if a notification has not been sent, then send a
-            # notification
-            else:
-                # record the end time and calculate the total time in
-                # seconds
-                endTime = datetime.now()
-                totalSeconds = (endTime - startTime).seconds
-                dateOpened = date.today().strftime("%A, %B %d %Y")
+        # if the `q` key is pressed, break from the lop
+        if key == ord("q"):
+            break
 
-                # build the message and send a notification
-                msg = "Your fridge was opened on {} at {} for {} " \
-                      "seconds.".format(dateOpened,
-                                        startTime.strftime("%I:%M%p"), totalSeconds)
-
-                # release the video writer pointer and reset the
-                # writer object
-                writer.release()
-                writer = None
-
-                # send the message and the video to the owner
-
-    # check to see if we should write the frame to disk
-    if writer is not None:
-        writer.write(frame)
-
-# check to see if we need to release the video writer pointer
-if writer is not None:
-    writer.release()
-
-# cleanup the camera and close any open windows
-cv2.destroyAllWindows()
-vs.stop()
+    # clear the stream in preparation for the next frame
+    rawCapture.truncate(0)
