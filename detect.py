@@ -40,7 +40,7 @@ lastUploaded = datetime.datetime.now()
 motionCounter = 0
 
 
-cap = cv2.VideoCapture(Camera#);
+cap = cv2.VideoCapture();
 
 kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
 fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
