@@ -32,40 +32,68 @@ usingPiCamera = True
 frameSize = (320, 240)
 
 # initialize the camera and grab a reference to the raw camera capture
-camera = PiCamera()
-camera.resolution = tuple(conf["resolution"])
-camera.framerate = conf["fps"]
-rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
+# camera = PiCamera()
+# camera.resolution = tuple(conf["resolution"])
+# camera.framerate = conf["fps"]
+# rawCapture = PiRGBArray(camera, size=tuple(conf["resolution"]))
 
 # Initialize mutithreading the video stream.
 vs = VideoStream(src=0, usePiCamera=usingPiCamera, resolution=frameSize,
                  framerate=32).start()
 
-# allow the camera to warmup, then initialize the average frame, last
-# uploaded timestamp, and frame motion counter
-print("[INFO] warming up...")
-time.sleep(conf["camera_warmup_time"])
-avg = None
-lastUploaded = datetime.datetime.now()
-motionCounter = 0
+# Allow the camera to warm up.
+time.sleep(2.0)
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
-
+timeCheck = time.time()
 while True:
-    ret, frame = vs.read()
+    # Get the next frame.
+    frame = vs.read()
 
-    fgmask = fgbg.apply(frame)
-    fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+    # If using a webcam instead of the Pi Camera,
+    # we take the extra step to change frame size.
+    if not usingPiCamera:
+        frame = imutils.resize(frame, width=frameSize[0])
 
-    cv2.imshow('frame', fgmask)
+    # Show video stream
+    cv2.imshow('orig', frame)
     key = cv2.waitKey(1) & 0xFF
-    # if the `q` key is pressed, break from the lop
+
+    # if the `q` key was pressed, break from the loop.
     if key == ord("q"):
         break
 
+    print(1/(time.time() - timeCheck))
+    timeCheck = time.time()
+
+# Cleanup before exit.
 cv2.destroyAllWindows()
 vs.stop()
+
+# allow the camera to warmup, then initialize the average frame, last
+# uploaded timestamp, and frame motion counter
+# print("[INFO] warming up...")
+# time.sleep(conf["camera_warmup_time"])
+# avg = None
+# lastUploaded = datetime.datetime.now()
+# motionCounter = 0
+#
+# kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+# fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
+
+# while True:
+#     ret, frame = vs.read()
+#
+#     fgmask = fgbg.apply(frame)
+#     fgmask = cv2.morphologyEx(fgmask, cv2.MORPH_OPEN, kernel)
+#
+#     cv2.imshow('frame', fgmask)
+#     key = cv2.waitKey(1) & 0xFF
+#     # if the `q` key is pressed, break from the lop
+#     if key == ord("q"):
+#         break
+#
+# cv2.destroyAllWindows()
+# vs.stop()
 
 # # capture frames from the camera
 # for f in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
