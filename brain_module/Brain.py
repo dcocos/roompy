@@ -24,9 +24,9 @@ class Brain:
 
         # the action rules for the thinking tick
         self.action_rules = [
-            # GreetingActionRule(self),
-            # CloseMeetingActionRule(self, 5),
-            # EndingMeetingActionRule(self, 5),
+            GreetingActionRule(self),
+            CloseMeetingActionRule(self, 5),
+            EndingMeetingActionRule(self, 5),
         ]
 
         # current values used in rules
@@ -58,5 +58,5 @@ class Brain:
         logging.info('last movement updated to {self.last_movement_datetime}')
 
     def __react_on_panic(self):
-        self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')
+        # self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')
         self.paniced = True
