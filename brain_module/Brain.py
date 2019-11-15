@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from brain_module.CloseMeetingActionRule import CloseMeetingActionRule
 from brain_module.EndingMeetingActionRule import EndingMeetingActionRule
@@ -18,7 +19,7 @@ class Brain:
         self.eyes = Eyes(True)
         self.eyes.motionDetected += self.__update_last_movement
         self.eyes.panicDetected += self.__react_on_panic
-        self.last_movement_datetime = self.calendar.get_time_now()
+        self.last_movement_datetime = datetime.fromisoformat('1000-01-01T00:00:00+02:00')
         self.paniced = False
 
         # the action rules for the thinking tick
