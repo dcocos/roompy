@@ -11,6 +11,9 @@ class GreetingActionRule:
     def check_do(self):
         brain = self.brain
         for event in brain.current_open_events:
+            logging.info(f'{event.id} from {event.start} to {event.end}, '
+                         f'last_movement_datetime = {brain.last_movement_datetime} '
+                         f'current_time = {brain.current_time}.')
             if event.start < brain.current_time < event.end\
                     and event.id not in self.greeted_events\
                     and event.start < brain.last_movement_datetime < event.end:

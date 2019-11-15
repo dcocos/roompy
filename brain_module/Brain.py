@@ -49,6 +49,7 @@ class Brain:
         logging.info('running thinking tick')
         self.current_time = self.calendar.get_time_now()
         self.current_open_events = self.calendar.get_open_events(self.current_time)
+        logging.info(f'There are {len(self.current_open_events)} current open events.')
         for action_rule in self.action_rules:
             action_rule.check_do()
 
