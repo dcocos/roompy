@@ -1,8 +1,8 @@
 import logging
-from datetime import datetime
 
 from brain_module.CloseMeetingActionRule import CloseMeetingActionRule
 from brain_module.EndingMeetingActionRule import EndingMeetingActionRule
+from brain_module.GreetingActionRule import GreetingActionRule
 from calendar_module.Calendar import Calendar
 from calendar_module.CalendarClient import CalendarClient
 from motion_module.Eyes import Eyes
@@ -17,12 +17,13 @@ class Brain:
         self.speak = Speak()
         self.eyes = Eyes(True)
         self.eyes.motionDetected += self.__update_last_movement
-        self.last_movement_datetime = datetime.fromisoformat('1000-01-01T00:00:00+02:00')
+        self.last_movement_datetime = self.calendar.get_time_now()
 
         # the action rules for the thinking tick
         self.action_rules = [
+            GreetingActionRule(self),
+            CloseMeetingActionRule(self, 5),
             EndingMeetingActionRule(self, 5),
-            CloseMeetingActionRule(self, 5)
         ]
 
         # current values used in rules
@@ -49,5 +50,5 @@ class Brain:
             action_rule.check_do()
 
     def __update_last_movement(self):
-        self.last_movement_datetime = datetime.now()
+        self.last_movement_datetime = self.calendar.get_time_now()
         logging.info(f'last movement updated to {self.last_movement_datetime}')

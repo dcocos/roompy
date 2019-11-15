@@ -1,6 +1,6 @@
 import logging
 
-from brain_module.Brain import Brain
+from brain_module import Brain
 
 
 class GreetingActionRule:
