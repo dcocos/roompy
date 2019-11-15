@@ -24,9 +24,9 @@ class Brain:
 
         # the action rules for the thinking tick
         self.action_rules = [
-            GreetingActionRule(self),
+            # GreetingActionRule(self),
             # CloseMeetingActionRule(self, 5),
-            # EndingMeetingActionRule(self, 5),
+            EndingMeetingActionRule(self, 5),
         ]
 
         # current values used in rules
