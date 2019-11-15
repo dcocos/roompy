@@ -17,7 +17,7 @@ class EndingMeetingActionRule:
                     logging.info(f'event {event.summary} is ending at {event.end}')
                     self.events_notified_for_ending[event.id] = True
                     time_in_minutes_until_end = brain.calendar.time_in_minutes_until_end(brain.current_time, event)
-                    brain.speak.speak(f'This meeting reservation is ending in {time_in_minutes_until_end}. '
+                    brain.speak.speak(f'This meeting reservation is ending in {time_in_minutes_until_end} minutes. '
                                       f'Get the f out of here!')
                 else:
                     logging.info(f'event {event.summary} is ending at {event.end} but message was already played.')
