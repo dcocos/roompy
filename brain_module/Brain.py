@@ -18,7 +18,7 @@ class Brain:
         self.speak = Speak()
         self.eyes = Eyes(True)
         self.eyes.motionDetected += self.__update_last_movement
-        # self.eyes.panicDetected += self.__react_on_panic
+        self.eyes.panicDetected += self.__react_on_panic
         self.last_movement_datetime = datetime.fromisoformat('1000-01-01T00:00:00+02:00')
         self.paniced = False
 
@@ -26,7 +26,7 @@ class Brain:
         self.action_rules = [
             # GreetingActionRule(self),
             # CloseMeetingActionRule(self, 5),
-            EndingMeetingActionRule(self, 5),
+            # EndingMeetingActionRule(self, 5),
         ]
 
         # current values used in rules
