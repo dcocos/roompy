@@ -32,7 +32,7 @@ class Eyes:
                 if white_percent > threshold:
                     self.motionDetected()
 
-                self.detect_panic(self, white_percent)
+                self.detect_panic(white_percent)
 
                 key = cv2.waitKey(1) & 0xFF
                 # if the `q` key is pressed, break from the loop
