@@ -17,6 +17,7 @@ class Brain:
         self.speak = Speak()
         self.eyes = Eyes(True)
         self.eyes.motionDetected += self.__update_last_movement
+        self.eyes.panicDetected += self.__update_last_movement
         self.last_movement_datetime = self.calendar.get_time_now()
 
         # the action rules for the thinking tick
@@ -33,22 +34,29 @@ class Brain:
         # the timer for the thinking tick
         self.thinking_tick_timer = RepeatedTimer(5, self.__run_thinking_tick)
 
-    def start_thinking(self):
-        self.thinking_tick_timer.start()
-        try:
-            logging.info('Roompy is very vigilant')
-            self.eyes.detect()
-        finally:
-            self.thinking_tick_timer.stop()
-            logging.info('Roompy has fallen asleep')
 
-    def __run_thinking_tick(self):
-        logging.info('running thinking tick')
-        self.current_time = self.calendar.get_time_now()
-        self.current_open_events = self.calendar.get_open_events(self.current_time)
-        for action_rule in self.action_rules:
-            action_rule.check_do()
+def start_thinking(self):
+    self.thinking_tick_timer.start()
+    try:
+        logging.info('Roompy is very vigilant')
+        self.eyes.detect()
+    finally:
+        self.thinking_tick_timer.stop()
+        logging.info('Roompy has fallen asleep')
 
-    def __update_last_movement(self):
-        self.last_movement_datetime = self.calendar.get_time_now()
-        logging.info(f'last movement updated to {self.last_movement_datetime}')
+
+def __run_thinking_tick(self):
+    logging.info('running thinking tick')
+    self.current_time = self.calendar.get_time_now()
+    self.current_open_events = self.calendar.get_open_events(self.current_time)
+    for action_rule in self.action_rules:
+        action_rule.check_do()
+
+
+def __update_last_movement(self):
+    self.last_movement_datetime = self.calendar.get_time_now()
+    logging.info('last movement updated to {self.last_movement_datetime}')
+
+
+def __react_on_panic(self):
+    self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')

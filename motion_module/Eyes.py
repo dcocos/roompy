@@ -9,6 +9,7 @@ class Eyes:
     def __init__(self, show: bool):
         self.show = show
         self.motionDetected = Event()
+        self.panicDetected = Event()
         self.cap = cv2.VideoCapture(0)
         self.kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         self.fgbg = cv2.bgsegm.createBackgroundSubtractorGMG()
@@ -31,6 +32,8 @@ class Eyes:
                 if white_percent > threshold:
                     self.motionDetected()
 
+                self.detect_panic(self, white_percent)
+
                 key = cv2.waitKey(1) & 0xFF
                 # if the `q` key is pressed, break from the loop
                 if key == ord("q"):
@@ -38,3 +41,7 @@ class Eyes:
         finally:
             self.cap.release()
             cv2.destroyAllWindows()
+
+    def detect_panic(self, white_percent: float):
+        if white_percent > 0.9:
+            self.panicDetected()
