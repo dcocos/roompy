@@ -17,7 +17,7 @@ class Brain:
         self.speak = Speak()
         self.eyes = Eyes(True)
         self.eyes.motionDetected += self.__update_last_movement
-        self.eyes.panicDetected += self.__update_last_movement
+        self.eyes.panicDetected += self.__react_on_panic
         self.last_movement_datetime = self.calendar.get_time_now()
 
         # the action rules for the thinking tick

@@ -43,5 +43,5 @@ class Eyes:
             cv2.destroyAllWindows()
 
     def detect_panic(self, white_percent: float):
-        if white_percent > 0.9:
+        if white_percent > 0.95:
             self.panicDetected()
