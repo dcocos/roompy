@@ -33,7 +33,7 @@ class Brain:
         self.current_open_events = []
 
         # the timer for the thinking tick
-        self.thinking_tick_timer = RepeatedTimer(15, self.__run_thinking_tick)
+        self.thinking_tick_timer = RepeatedTimer(5, self.__run_thinking_tick)
 
     def start_thinking(self):
         self.thinking_tick_timer.start()
