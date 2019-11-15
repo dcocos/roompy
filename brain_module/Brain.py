@@ -5,7 +5,7 @@ from brain_module.CloseMeetingActionRule import CloseMeetingActionRule
 from brain_module.EndingMeetingActionRule import EndingMeetingActionRule
 from calendar_module.Calendar import Calendar
 from calendar_module.CalendarClient import CalendarClient
-from motion_module.Detector import Detector
+from motion_module.Eyes import Eyes
 from speak_module.Speak import Speak
 from utils.RepeatedTimer import RepeatedTimer
 
@@ -15,8 +15,8 @@ class Brain:
         # initialize the brain parts
         self.calendar = Calendar(CalendarClient('adrian.tosca@gmail.com'))
         self.speak = Speak()
-        self.detector = Detector(True)
-        self.detector.motionDetected += self.__update_last_movement
+        self.eyes = Eyes(True)
+        self.eyes.motionDetected += self.__update_last_movement
         self.last_movement_datetime = datetime.fromisoformat('1000-01-01T00:00:00+02:00')
 
         # the action rules for the thinking tick
@@ -36,7 +36,7 @@ class Brain:
         self.thinking_tick_timer.start()
         try:
             logging.info('Roompy is very vigilant')
-            self.detector.detect()
+            self.eyes.detect()
         finally:
             self.thinking_tick_timer.stop()
             logging.info('Roompy has fallen asleep')

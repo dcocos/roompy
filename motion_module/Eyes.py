@@ -4,7 +4,7 @@ import numpy as np
 from utils.Event import Event
 
 
-class Detector:
+class Eyes:
 
     def __init__(self, show: bool):
         self.show = show
