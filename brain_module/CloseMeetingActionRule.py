@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from brain_module.Brain import Brain
+from brain_module import Brain
 
 
 class CloseMeetingActionRule:

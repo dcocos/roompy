@@ -15,7 +15,7 @@ class Speak:
         hex_dig = hash_object.hexdigest()
         return hex_dig
 
-    def speak(self, text_to_read: str, language: str):
+    def speak(self, text_to_read: str, language: str = 'en'):
         file_name = self.obtain_hash(text_to_read) + '.mp3'
         file_path = os.path.join(os.path.dirname(__file__), 'SoundRecordings', file_name)
         if not os.path.exists(file_path):

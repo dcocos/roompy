@@ -1,6 +1,6 @@
 import logging
 
-from brain_module.Brain import Brain
+from brain_module import Brain
 
 
 class EndingMeetingActionRule:
@@ -18,6 +18,6 @@ class EndingMeetingActionRule:
                     self.events_notified_for_ending[event.id] = True
                     time_in_minutes_until_end = brain.calendar.time_in_minutes_until_end(brain.current_time, event)
                     brain.speak.speak(f'This meeting reservation is ending in {time_in_minutes_until_end}. '
-                                      f'Get the f out of here!', 'en')
+                                      f'Get the f out of here!')
                 else:
                     logging.info(f'event {event.summary} is ending at {event.end} but message was already played.')
