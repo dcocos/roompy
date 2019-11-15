@@ -19,6 +19,7 @@ class Brain:
         self.eyes.motionDetected += self.__update_last_movement
         self.eyes.panicDetected += self.__react_on_panic
         self.last_movement_datetime = self.calendar.get_time_now()
+        self.paniced = False
 
         # the action rules for the thinking tick
         self.action_rules = [
@@ -32,7 +33,7 @@ class Brain:
         self.current_open_events = []
 
         # the timer for the thinking tick
-        self.thinking_tick_timer = RepeatedTimer(5, self.__run_thinking_tick)
+        self.thinking_tick_timer = RepeatedTimer(15, self.__run_thinking_tick)
 
     def start_thinking(self):
         self.thinking_tick_timer.start()
@@ -55,4 +56,6 @@ class Brain:
         logging.info('last movement updated to {self.last_movement_datetime}')
 
     def __react_on_panic(self):
-        self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')
+        if not self.paniced:
+            self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')
+            self.paniced = True
