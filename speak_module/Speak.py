@@ -20,4 +20,5 @@ class Speak:
         file_path = os.path.join(os.path.dirname(__file__), 'SoundRecordings', file_name)
         if not os.path.exists(file_path):
             self.create_MP3(text_to_read, language, file_path)
-        os.system("mpg321 " + file_path)
+        os.system("omxplayer -o both " + file_path)
+        # os.system("mpg321 " + file_path)
