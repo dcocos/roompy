@@ -58,6 +58,5 @@ class Brain:
         logging.info('last movement updated to {self.last_movement_datetime}')
 
     def __react_on_panic(self):
-        if not self.paniced:
-            self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')
-            self.paniced = True
+        self.speak.speak('DO NOT HIT ME! MY CREATORS WILL FIND OUT ABOUT THIS!')
+        self.paniced = True
